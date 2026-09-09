@@ -2,7 +2,7 @@
   "name": "Automations Hub",
   "short_name": "Automations Hub",
   "description": "All your projects, one tap away",
-  "start_url": "./index.html",
+  "start_url": "./app.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#101114",
