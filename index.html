@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- index.html on gihub pages (portfolio site) -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -154,6 +155,33 @@
   /* ---------- Footer ---------- */
   footer { border-top: 1px solid var(--border); padding: 40px 0; text-align: center; color: var(--text-muted); font-size: 13px; }
   footer a { font-weight: 600; color: var(--text); }
+
+
+
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+    padding: 32px 24px; max-width: 380px; width: 100%; text-align: center; position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; width: 30px; height: 30px; cursor: pointer; color: var(--text); font-size: 14px;
+  }
+  .modal-icon { font-size: 36px; margin-bottom: 12px; }
+  .modal-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 10px; }
+  .modal-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+  .modal-sub { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 16px; }
+  .modal-input {
+    width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--text); font-size: 14px; margin-bottom: 10px; outline: none;
+  }
+  .modal-input:focus { border-color: var(--accent); }
+  .modal-status { font-size: 12.5px; color: var(--text-muted); margin-top: 12px; min-height: 16px; }
+  .lock-btn { cursor: pointer; border: none; }
 </style>
 </head>
 <body>
@@ -323,8 +351,13 @@
       }
 
       grid.innerHTML = filtered.map(cardHtml).join('');
+
+      document.querySelectorAll('.lock-btn').forEach(btn => {
+        btn.addEventListener('click', () => openSecureGate(btn.dataset.projectid));
+      });
       revealCards();
     }
+
 
     function cardHtml(p) {
       const iconInner = (p.iconType === 'image' && p.iconUrl)
@@ -333,10 +366,17 @@
       const statusDot = p.status
         ? `<span class="status-dot ${p.status === 'up' ? 'up' : 'down'}" title="${p.status === 'up' ? 'Live' : 'Down'}"></span>`
         : '';
-      const liveLink = p.liveUrl
-        ? `<a class="card-link primary" href="${p.liveUrl}" target="_blank" rel="noopener">View Live →</a>` : '';
-      const repoLinks = (p.repoLinks || []).map(r =>
-        `<a class="card-link" href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.label)}</a>`).join('');
+
+      let actionHtml;
+      if (p.secure) {
+        actionHtml = `<button type="button" class="card-link primary lock-btn" data-projectid="${p.id}">🔒 Request Access</button>`;
+      } else {
+        const liveLink = p.liveUrl
+          ? `<a class="card-link primary" href="${p.liveUrl}" target="_blank" rel="noopener">View Live →</a>` : '';
+        const repoLinks = (p.repoLinks || []).map(r =>
+          `<a class="card-link" href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.label)}</a>`).join('');
+        actionHtml = liveLink + repoLinks;
+      }
 
       return `
         <div class="card">
@@ -347,9 +387,90 @@
           <div class="card-name">${escapeHtml(p.name)}</div>
           <div class="card-desc">${escapeHtml(p.description || '')}</div>
           ${p.category ? `<div class="card-category">${escapeHtml(p.category)}</div>` : ''}
-          <div class="card-links">${liveLink}${repoLinks}</div>
+          <div class="card-links">${actionHtml}</div>
         </div>`;
     }
+
+    // function cardHtml(p) {
+    //   const iconInner = (p.iconType === 'image' && p.iconUrl)
+    //     ? `<img src="${p.iconUrl}">`
+    //     : escapeHtml(p.icon || '🔗');
+    //   const statusDot = p.status
+    //     ? `<span class="status-dot ${p.status === 'up' ? 'up' : 'down'}" title="${p.status === 'up' ? 'Live' : 'Down'}"></span>`
+    //     : '';
+    //   const liveLink = p.liveUrl
+    //     ? `<a class="card-link primary" href="${p.liveUrl}" target="_blank" rel="noopener">View Live →</a>` : '';
+    //   const repoLinks = (p.repoLinks || []).map(r =>
+    //     `<a class="card-link" href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.label)}</a>`).join('');
+
+    //   return `
+    //     <div class="card">
+    //       <div class="card-top">
+    //         <div class="card-icon" style="background:${p.color}22; color:${p.color}">${iconInner}</div>
+    //         ${statusDot}
+    //       </div>
+    //       <div class="card-name">${escapeHtml(p.name)}</div>
+    //       <div class="card-desc">${escapeHtml(p.description || '')}</div>
+    //       ${p.category ? `<div class="card-category">${escapeHtml(p.category)}</div>` : ''}
+    //       <div class="card-links">${liveLink}${repoLinks}</div>
+    //     </div>`;
+    // }
+
+
+    let currentSecureProject = null;
+
+    function openSecureGate(projectId) {
+      currentSecureProject = allProjects.find(p => p.id === projectId);
+      if (!currentSecureProject) return;
+      document.getElementById('secureGateModal').classList.add('open');
+    }
+    function closeSecureGate() {
+      document.getElementById('secureGateModal').classList.remove('open');
+    }
+    document.getElementById('shareEmailBtn').addEventListener('click', () => {
+      closeSecureGate();
+      openRequestForm();
+    });
+
+    function openRequestForm() {
+      document.getElementById('requestAccessProjectLabel').textContent = 'Requesting access to: ' + currentSecureProject.name;
+      document.getElementById('req_name').value = '';
+      document.getElementById('req_email').value = '';
+      document.getElementById('req_phone').value = '';
+      document.getElementById('requestStatus').textContent = '';
+      document.getElementById('requestAccessModal').classList.add('open');
+    }
+    function closeRequestForm() {
+      document.getElementById('requestAccessModal').classList.remove('open');
+    }
+
+    document.getElementById('sendRequestBtn').addEventListener('click', () => {
+      const name = document.getElementById('req_name').value.trim();
+      const email = document.getElementById('req_email').value.trim();
+      const phone = document.getElementById('req_phone').value.trim();
+      const statusEl = document.getElementById('requestStatus');
+      if (!name || !email) { statusEl.textContent = 'Name and email are required.'; return; }
+      statusEl.textContent = 'Sending…';
+
+      const callbackName = 'reqCallback_' + Date.now();
+      window[callbackName] = (result) => {
+        statusEl.textContent = (result && result.success)
+          ? '✅ Request sent! You will receive an email once access is granted.'
+          : '⚠️ ' + (result && result.error ? result.error : 'Something went wrong.');
+        delete window[callbackName];
+        script.remove();
+      };
+      const script = document.createElement('script');
+      const params = new URLSearchParams({
+        action: 'submitAccessRequest', callback: callbackName,
+        projectId: currentSecureProject.id, name: name, email: email, phone: phone
+      });
+      script.src = DASHBOARD_URL + '?' + params.toString();
+      script.onerror = () => { statusEl.textContent = '⚠️ Could not reach the server.'; };
+      document.body.appendChild(script);
+    });
+
+    
 
     function revealCards() {
       const cards = document.querySelectorAll('.card');
@@ -378,7 +499,33 @@
     }
 
     loadPortfolioData();
+
   </script>
+
+
+
+  <div class="modal-overlay" id="secureGateModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeSecureGate()">✕</button>
+      <div class="modal-icon">🔒</div>
+      <h3>Private Project</h3>
+      <p>This is a private project. You are not allowed to access this project at the moment. Contact the developer for access.</p>
+      <button class="btn-cta" style="width:100%" id="shareEmailBtn">Share your preferred email</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="requestAccessModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeRequestForm()">✕</button>
+      <h3>Request Access</h3>
+      <p class="modal-sub" id="requestAccessProjectLabel"></p>
+      <input class="modal-input" id="req_name" placeholder="Your name">
+      <input class="modal-input" id="req_email" placeholder="Your email" type="email">
+      <input class="modal-input" id="req_phone" placeholder="Phone (optional)">
+      <button class="btn-cta" style="width:100%" id="sendRequestBtn">Send Request</button>
+      <div class="modal-status" id="requestStatus"></div>
+    </div>
+  </div>
 </body>
 </html>
 
