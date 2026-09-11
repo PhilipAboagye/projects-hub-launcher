@@ -254,6 +254,30 @@
     </div>
   </main>
 
+
+   <div class="modal-overlay" id="secureGateModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeSecureGate()">✕</button>
+      <div class="modal-icon">🔒</div>
+      <h3>Private Project</h3>
+      <p>This is a private project. You are not allowed to access this project at the moment. Contact the developer for access.</p>
+      <button class="btn-cta" style="width:100%" id="shareEmailBtn">Share your preferred email</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="requestAccessModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeRequestForm()">✕</button>
+      <h3>Request Access</h3>
+      <p class="modal-sub" id="requestAccessProjectLabel"></p>
+      <input class="modal-input" id="req_name" placeholder="Your name">
+      <input class="modal-input" id="req_email" placeholder="Your email" type="email">
+      <input class="modal-input" id="req_phone" placeholder="Phone (optional)">
+      <button class="btn-cta" style="width:100%" id="sendRequestBtn">Send Request</button>
+      <div class="modal-status" id="requestStatus"></div>
+    </div>
+  </div>
+
   <footer>
     Built with <a href="app.html">Automations Hub</a> · © <span id="year"></span> Philip
   </footer>
@@ -501,31 +525,6 @@
     loadPortfolioData();
 
   </script>
-
-
-
-  <div class="modal-overlay" id="secureGateModal">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeSecureGate()">✕</button>
-      <div class="modal-icon">🔒</div>
-      <h3>Private Project</h3>
-      <p>This is a private project. You are not allowed to access this project at the moment. Contact the developer for access.</p>
-      <button class="btn-cta" style="width:100%" id="shareEmailBtn">Share your preferred email</button>
-    </div>
-  </div>
-
-  <div class="modal-overlay" id="requestAccessModal">
-    <div class="modal-card">
-      <button class="modal-close" onclick="closeRequestForm()">✕</button>
-      <h3>Request Access</h3>
-      <p class="modal-sub" id="requestAccessProjectLabel"></p>
-      <input class="modal-input" id="req_name" placeholder="Your name">
-      <input class="modal-input" id="req_email" placeholder="Your email" type="email">
-      <input class="modal-input" id="req_phone" placeholder="Phone (optional)">
-      <button class="btn-cta" style="width:100%" id="sendRequestBtn">Send Request</button>
-      <div class="modal-status" id="requestStatus"></div>
-    </div>
-  </div>
 </body>
 </html>
 
