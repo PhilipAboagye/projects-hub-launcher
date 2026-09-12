@@ -60,6 +60,9 @@
     * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
   }
 
+  .hero-link img, .contact-row img { width: 16px; height: 16px; filter: invert(1) brightness(1.8); }
+  [data-theme="light"] .hero-link img, [data-theme="light"] .contact-row img { filter: none; }
+
   /* ---------- Reveal-on-scroll ---------- */
   .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1); transition-delay: var(--d, 0s); }
   .reveal.in { opacity: 1; transform: translateY(0); }
@@ -345,10 +348,24 @@
           software that quietly does its job so people don't have to think about it.
         </p>
         <div class="hero-links">
+          <a class="hero-link primary" href="mailto:philipab896@gmail.com">
+            <img src="https://img.icons8.com/?size=100&id=85024&format=png&color=000000" alt="">
+            Get in touch
+          </a>
+          <a class="hero-link" href="https://github.com/PhilipAboagye" target="_blank" rel="noopener">
+            <img src="https://img.icons8.com/?size=100&id=ARy6tFUfwclb&format=png&color=000000" alt="">
+            GitHub
+          </a>
+          <a class="hero-link" href="https://www.linkedin.com/in/philip-aboagye-60b963255" target="_blank" rel="noopener">
+            <img src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" alt="">
+            LinkedIn
+          </a>
+        </div>
+        <!-- <div class="hero-links">
           <a class="hero-link primary" href="mailto:philipab896@gmail.com">Get in touch</a>
           <a class="hero-link" href="https://github.com/PhilipAboagye" target="_blank" rel="noopener">GitHub</a>
           <a class="hero-link" href="https://www.linkedin.com/in/philip-aboagye-60b963255" target="_blank" rel="noopener">LinkedIn</a>
-        </div>
+        </div> -->
       </div>
       <div class="portrait-block">
         <div class="portrait-frame">
@@ -494,10 +511,24 @@
       <h2>Have something worth building? Let's talk.</h2>
       <p style="color:var(--text-dim)">Always interested in interesting problems, automation challenges, and good engineering conversations.</p>
       <div class="contact-row">
+        <a class="hero-link primary" href="mailto:philipab896@gmail.com">
+          <img src="https://img.icons8.com/?size=100&id=85024&format=png&color=000000" alt="">
+          philipab896@gmail.com
+        </a>
+        <a class="hero-link" href="https://github.com/PhilipAboagye" target="_blank" rel="noopener">
+          <img src="https://img.icons8.com/?size=100&id=ARy6tFUfwclb&format=png&color=000000" alt="">
+          GitHub
+        </a>
+        <a class="hero-link" href="https://www.linkedin.com/in/philip-aboagye-60b963255" target="_blank" rel="noopener">
+          <img src="https://img.icons8.com/?size=100&id=13930&format=png&color=000000" alt="">
+          LinkedIn
+        </a>
+      </div>
+      <!-- <div class="contact-row">
         <a class="hero-link primary" href="mailto:philipab896@gmail.com">philipab896@gmail.com</a>
         <a class="hero-link" href="https://github.com/PhilipAboagye" target="_blank" rel="noopener">GitHub</a>
         <a class="hero-link" href="https://www.linkedin.com/in/philip-aboagye-60b963255" target="_blank" rel="noopener">LinkedIn</a>
-      </div>
+      </div> -->
     </div>
   </section>
 
