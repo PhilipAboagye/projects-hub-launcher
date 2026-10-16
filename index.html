@@ -706,6 +706,7 @@
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 </style>
+  <link rel="stylesheet" href="enhancements.css">
 </head>
 <body>
 
@@ -769,9 +770,13 @@
       </div>
       <div class="portrait-block">
         <div class="portrait-shell">
-          <div class="portrait-frame">
+          <div class="portrait-frame" id="portraitFrame">
+          <img id="portraitImg" src="portrait.jpg" alt="Philip Kofi Aboagye"
+               width="800" height="1000" fetchpriority="high" referrerpolicy="no-referrer">
+        </div>
+          <!-- <div class="portrait-frame">
             <img src="https://media.licdn.com/dms/image/v2/D4D03AQHiiJ5ggfyzmA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1695981407786?e=1790812800&v=beta&t=pZ3w2kujfWOb1Gak_WqYaWhr7HvkAJQOYH5hqm9y6xs" alt="Philip Kofi Aboagye">
-          </div>
+          </div> -->
         </div>
         <div class="portrait-role">Software · Data &amp; Automation Systems Engineer</div>
         <div class="stats-strip" id="statsStrip">
@@ -1654,6 +1659,12 @@
       });
 
       input.addEventListener('input', e => render(e.target.value));
+    })();
+
+    (function () {
+      const img = document.getElementById('portraitImg');
+      const frame = document.getElementById('portraitFrame');
+      img.addEventListener('error', () => frame.classList.add('img-failed'), { once: true });
     })();
 
     loadPortfolioData();
