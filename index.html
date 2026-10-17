@@ -919,6 +919,17 @@
 </section>
 
 
+
+  <section class="block" id="gallery" hidden>
+  <div class="wrap">
+    <div class="block-head reveal">
+      <div class="block-tag">Gallery</div>
+      <h2>Moments &amp; milestones.</h2>
+    </div>
+    <div class="gal-masonry" id="galGrid"></div>
+  </div>
+</section>
+
   
 
   <section class="block" id="certifications">
@@ -981,6 +992,18 @@
       <div class="modal-status" id="requestStatus" role="status" aria-live="polite"></div>
     </div>
   </div>
+
+
+
+  <div class="gal-lightbox" id="galLightbox" hidden role="dialog" aria-modal="true" aria-label="Gallery photo">
+  <button class="gal-lb-close" id="galLbClose" aria-label="Close">✕</button>
+  <button class="gal-lb-nav prev" id="galLbPrev" aria-label="Previous photo">‹</button>
+  <figure class="gal-lb-fig">
+    <img id="galLbImg" alt="">
+    <figcaption id="galLbCap"></figcaption>
+  </figure>
+  <button class="gal-lb-nav next" id="galLbNext" aria-label="Next photo">›</button>
+</div>
 
   <!-- Command palette -->
   <div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="Command palette">
@@ -1293,6 +1316,67 @@
         });
       });
     }
+
+
+
+
+    (function initGallery() {
+  const section = document.getElementById('gallery'), grid = document.getElementById('galGrid');
+  const lb = document.getElementById('galLightbox'), lbImg = document.getElementById('galLbImg'), lbCap = document.getElementById('galLbCap');
+  if (!section || !grid || !lb) return;
+  let items = [], cur = 0, lastFocus = null;
+
+  const show = i => {
+    cur = (i + items.length) % items.length;
+    lbImg.src = safeUrl(items[cur].imageUrl); lbImg.alt = items[cur].description; lbCap.textContent = items[cur].description;
+  };
+  const open = i => {
+    lastFocus = document.activeElement; show(i); lb.hidden = false;
+    document.getElementById('galLbClose').focus();
+  };
+  const close = () => { lb.hidden = true; lbImg.removeAttribute('src'); if (lastFocus) lastFocus.focus(); };
+
+  grid.addEventListener('click', e => { const f = e.target.closest('.gal-item'); if (f) open(+f.dataset.i); });
+  grid.addEventListener('keydown', e => {
+    const f = e.target.closest('.gal-item');
+    if (f && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(+f.dataset.i); }
+  });
+  document.getElementById('galLbClose').onclick = close;
+  document.getElementById('galLbPrev').onclick = () => show(cur - 1);
+  document.getElementById('galLbNext').onclick = () => show(cur + 1);
+  lb.addEventListener('click', e => { if (e.target === lb) close(); });
+  document.addEventListener('keydown', e => {
+    if (lb.hidden) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowLeft') show(cur - 1);
+    else if (e.key === 'ArrowRight') show(cur + 1);
+  });
+
+  const cb = 'galCb_' + Date.now(); let done = false, s;
+  const clean = () => { try { delete window[cb]; } catch (e) { window[cb] = undefined; } if (s && s.parentNode) s.parentNode.removeChild(s); };
+  const timer = setTimeout(() => { done = true; clean(); }, 8000);
+  window[cb] = data => {
+    if (done) return; done = true; clearTimeout(timer);
+    items = (data && Array.isArray(data.items) ? data.items : []).filter(g => g && g.imageUrl);
+    if (items.length) {
+      grid.innerHTML = items.map((g, i) => `
+        <figure class="gal-item" data-i="${i}" role="button" tabindex="0">
+          <img src="${escapeHtml(safeUrl(g.imageUrl))}" alt="${escapeHtml(g.description)}" loading="lazy" referrerpolicy="no-referrer"
+               onload="this.classList.add('loaded')" onerror="this.closest('.gal-item').remove()">
+          <figcaption><span>${escapeHtml(g.description)}</span></figcaption>
+        </figure>`).join('');
+      grid.querySelectorAll('img').forEach(im => { if (im.complete && im.naturalWidth) im.classList.add('loaded'); });
+      section.hidden = false;
+    }
+    clean();
+  };
+  s = document.createElement('script');
+  s.src = DASHBOARD_URL + '?action=publicGallery&callback=' + cb;
+  s.onerror = () => { done = true; clearTimeout(timer); clean(); };
+  document.body.appendChild(s);
+})();
+
+    
 
     // ---------- Grid render with FLIP ----------
     function renderGrid() {
