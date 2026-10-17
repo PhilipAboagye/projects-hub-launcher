@@ -901,6 +901,26 @@
     </div>
   </section>
 
+
+
+
+
+
+  <section class="block" id="tools" hidden>
+  <div class="wrap">
+    <div class="block-head reveal">
+      <div class="block-tag">Toolbox</div>
+      <h2>Tools I work with.</h2>
+    </div>
+  </div>
+  <div class="tools-marquee" role="region" aria-label="Tools I use">
+    <div class="tools-track" id="toolsTrack"></div>
+  </div>
+</section>
+
+
+  
+
   <section class="block" id="certifications">
     <div class="wrap">
       <div class="block-head reveal">
@@ -1666,6 +1686,42 @@
       const frame = document.getElementById('portraitFrame');
       img.addEventListener('error', () => frame.classList.add('img-failed'), { once: true });
     })();
+
+
+
+    (function initToolsMarquee() {
+  const section = document.getElementById('tools');
+  const track = document.getElementById('toolsTrack');
+  if (!section || !track) return;
+  const cb = 'toolsCb_' + Date.now();
+  let done = false, s;
+  const clean = () => {
+    try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+    if (s && s.parentNode) s.parentNode.removeChild(s);
+  };
+  const timer = setTimeout(() => { done = true; clean(); }, 8000);
+  window[cb] = data => {
+    if (done) return;
+    done = true; clearTimeout(timer);
+    const tools = (data && Array.isArray(data.tools) ? data.tools : []).filter(t => t && t.iconUrl);
+    if (tools.length) {
+      const reps = Math.max(1, Math.ceil(12 / tools.length));   // fill wide screens
+      const items = Array.from({ length: reps }).flatMap(() => tools).map(t =>
+        `<div class="tools-item"><img src="${escapeHtml(safeUrl(t.iconUrl))}" alt="${escapeHtml(t.name)}" loading="lazy" referrerpolicy="no-referrer" draggable="false"></div>`
+      ).join('');
+      track.innerHTML = `<div class="tools-group">${items}</div><div class="tools-group" aria-hidden="true">${items}</div>`;
+      track.style.setProperty('--dur', Math.max(24, tools.length * reps * 3) + 's');
+      section.hidden = false;
+    }
+    clean();
+  };
+  s = document.createElement('script');
+  s.src = DASHBOARD_URL + '?action=publicTools&callback=' + cb;
+  s.onerror = () => { done = true; clearTimeout(timer); clean(); };
+  document.body.appendChild(s);
+})();
+
+    
 
     loadPortfolioData();
   </script>
