@@ -1016,6 +1016,16 @@
   <button class="gal-lb-nav next" id="galLbNext" aria-label="Next photo">›</button>
 </div>
 
+
+  <div class="vid-modal" id="vidModal" hidden role="dialog" aria-modal="true" aria-label="Video player">
+  <button class="vid-modal-close" id="vidModalClose" aria-label="Close">✕</button>
+  <div class="vid-modal-inner">
+    <div class="vid-frame" id="vidFrame"></div>
+    <h3 id="vidModalTitle"></h3>
+    <p id="vidModalDesc"></p>
+  </div>
+</div>
+
   <!-- Command palette -->
   <div class="cmdk-overlay" id="cmdk" role="dialog" aria-modal="true" aria-label="Command palette">
     <div class="cmdk-panel" role="combobox" aria-expanded="true" aria-haspopup="listbox">
@@ -1819,6 +1829,78 @@
     
 
     loadPortfolioData();
+
+
+
+
+
+
+
+
+
+    (function initVideos() {
+  const section = document.getElementById('videos'), grid = document.getElementById('vidGrid');
+  const modal = document.getElementById('vidModal'), frame = document.getElementById('vidFrame');
+  if (!section || !grid || !modal) return;
+  const OK = /^https:\/\/(www\.youtube-nocookie\.com\/embed\/|player\.vimeo\.com\/video\/|drive\.google\.com\/file\/d\/)/;
+  let items = [], last = null;
+
+  const close = () => { frame.innerHTML = ''; modal.hidden = true; if (last) last.focus(); };
+  const open = i => {
+    const v = items[i]; if (!v) return;
+    if (v.embedUrl && OK.test(v.embedUrl)) {
+      last = document.activeElement;
+      const src = v.embedUrl + (/youtube|vimeo/.test(v.embedUrl) ? (v.embedUrl.includes('?') ? '&' : '?') + 'autoplay=1' : '');
+      frame.innerHTML = `<iframe src="${escapeHtml(src)}" title="${escapeHtml(v.name)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+      document.getElementById('vidModalTitle').textContent = v.name;
+      document.getElementById('vidModalDesc').textContent = v.description || '';
+      modal.hidden = false;
+      document.getElementById('vidModalClose').focus();
+    } else if (v.url && /^https?:\/\//i.test(v.url)) {
+      window.open(v.url, '_blank', 'noopener');
+    }
+  };
+  grid.addEventListener('click', e => { const c = e.target.closest('.vid-card'); if (c) open(+c.dataset.i); });
+  grid.addEventListener('keydown', e => {
+    const c = e.target.closest('.vid-card');
+    if (c && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); open(+c.dataset.i); }
+  });
+  document.getElementById('vidModalClose').onclick = close;
+  modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  document.addEventListener('keydown', e => { if (!modal.hidden && e.key === 'Escape') close(); });
+
+  const cb = 'vidCb_' + Date.now(); let done = false, s;
+  const clean = () => { try { delete window[cb]; } catch (e) { window[cb] = undefined; } if (s && s.parentNode) s.parentNode.removeChild(s); };
+  const timer = setTimeout(() => { done = true; clean(); }, 8000);
+  window[cb] = data => {
+    if (done) return; done = true; clearTimeout(timer);
+    items = (data && Array.isArray(data.items) ? data.items : []).filter(v => v && v.name);
+    if (items.length) {
+      grid.innerHTML = items.map((v, i) => {
+        const inline = !!(v.embedUrl && OK.test(v.embedUrl));
+        return `
+        <article class="vid-card" data-i="${i}" role="button" tabindex="0"
+                 aria-label="${escapeHtml(v.name)}${inline ? '' : ' — opens on ' + escapeHtml(v.provider || 'another site')}">
+          <div class="vid-thumb">
+            ${v.thumbUrl ? `<img src="${escapeHtml(safeUrl(v.thumbUrl))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+            <span class="vid-chip">${escapeHtml(v.provider || 'Video')}</span>
+            <span class="vid-play" aria-hidden="true">${inline ? '▶' : '↗'}</span>
+          </div>
+          <div class="vid-body">
+            <h3>${escapeHtml(v.name)}</h3>
+            ${v.description ? `<p>${escapeHtml(v.description)}</p>` : ''}
+          </div>
+        </article>`;
+      }).join('');
+      section.hidden = false;
+    }
+    clean();
+  };
+  s = document.createElement('script');
+  s.src = DASHBOARD_URL + '?action=publicVideos&callback=' + cb;
+  s.onerror = () => { done = true; clearTimeout(timer); clean(); };
+  document.body.appendChild(s);
+})();
   </script>
 </body>
 </html>
